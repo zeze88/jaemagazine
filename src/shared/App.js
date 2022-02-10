@@ -33,8 +33,8 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <div className="pb-10 max-w-[1080px] m-auto">
-        <ConnectedRouter history={history}>
+      <ConnectedRouter history={history}>
+        <div className="pb-10 max-w-[1080px] m-auto">
           <Route path="/" exact>
             <Home />
           </Route>
@@ -57,11 +57,11 @@ function App() {
           <Route path="/search" exact>
             <Search />
           </Route>
-          <Route path="/noti" exact>
-            <Notification />
-          </Route>
-        </ConnectedRouter>
-      </div>
+        </div>
+        <Route path="/noti" exact>
+          <Notification />
+        </Route>
+      </ConnectedRouter>
     </div>
   );
 }

@@ -12,7 +12,7 @@ const NotiCard = (props) => {
   return (
     <div>
       <div
-        className="flex items-center bg-amber-50 m-2 p-2"
+        className="flex items-center border border-gray-300 backdrop-blur-md container max-w-[1000px] mx-auto m-4 p-2 "
         onClick={() => {
           history.push(`/detail/${post_id}`);
         }}>

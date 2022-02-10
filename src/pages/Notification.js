@@ -2,6 +2,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 import NotiCard from "../components/NotiCard";
 import { realtime } from "../shared/firebase";
+import styled from "styled-components";
+
+// 기능추가 :: 알림설정 본인임 작성한 포스터에 누군가 댓글을 작성했을 때
+// 기능추가 :: 삭제 버튼
 
 const Notification = () => {
   const user = useSelector((state) => state.user.user);
@@ -30,12 +34,20 @@ const Notification = () => {
     });
   }, [user]);
   return (
-    <div className="bg-emerald-400">
+    <NotiDiv className="p-2">
       {noti.map((v, idx) => {
         return <NotiCard key={idx} {...v} />;
       })}
-    </div>
+    </NotiDiv>
   );
 };
+const NotiDiv = styled.div`
+  margin-top: -110px;
+  padding-top 70px;
+  background: url(/img/magazine.jpg) no-repeat fixed center/cover;
+  width: 100vw;
+  height: 100vh;
+  
 
+`;
 export default Notification;
