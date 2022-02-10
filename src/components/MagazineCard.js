@@ -3,7 +3,7 @@ import { history } from "../redux/configuserStore";
 import { MagazineImg, MagazineContents, MagazineInfo } from "../element";
 
 const MagazineCard = (props) => {
-  const { id, idx, magazine, info } = props;
+  const { id, idx, magazine, user_info, comment_cnt, like_it_cnt = 3 } = props;
 
   return (
     <div className={`flex flex-row${idx % 2 === 0 ? "" : "-reverse"}`}>
@@ -23,7 +23,12 @@ const MagazineCard = (props) => {
           <MagazineContents magazine={magazine} />
         </div>
         <div className="absolute bottom-0 p-10">
-          <MagazineInfo info={info} />
+          <MagazineInfo
+            post_id={id}
+            like_user={props[user_info.user_id]}
+            comment_cnt={comment_cnt}
+            like_it_cnt={like_it_cnt}
+          />
         </div>
       </div>
     </div>

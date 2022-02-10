@@ -33,7 +33,7 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <div className="pb-10">
+      <div className="pb-10 max-w-[1080px] m-auto">
         <ConnectedRouter history={history}>
           <Route path="/" exact>
             <Home />

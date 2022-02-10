@@ -1,20 +1,26 @@
 import React from "react";
 import styled from "styled-components";
 
-const Avarta = ({ isNickName = true, user_info }) => {
+const Avarta = ({ isNickName = true, user }) => {
+  const defaultImg =
+    "https://firebasestorage.googleapis.com/v0/b/jaemagazine-45854.appspot.com/o/image%2FJULhtsuBmabuNrbQ5Vv6ZLivSUB3_1644407428385?alt=media&token=5cd591a8-4369-4c15-8865-2a5dc67e17cc";
+
   return (
-    <AvartaDl className="flex items-center">
+    <AvartaDl
+      className="flex items-center"
+      src={user.user_profile ? user.user_profile : defaultImg}>
       <dt className="relative overflow-hidden rounded-full">
-        <img className="absolute" src={user_info.user_profile} alt="img" />
+        <div className="absolute"></div>
       </dt>
-      {isNickName && <dd>{user_info.user_name}</dd>}
+      {isNickName && <dd>{user.user_name}</dd>}
     </AvartaDl>
   );
 };
 Avarta.defaultProps = {
-  user_info: {
+  user: {
     user_name: "summer",
-    user_profile: "https://i.ytimg.com/vi/MPV2METPeJU/maxresdefault.jpg",
+    user_profile:
+      "https://firebasestorage.googleapis.com/v0/b/jaemagazine-45854.appspot.com/o/image%2FJULhtsuBmabuNrbQ5Vv6ZLivSUB3_1644407428385?alt=media&token=5cd591a8-4369-4c15-8865-2a5dc67e17cc",
   },
 };
 const AvartaDl = styled.dl`
@@ -23,9 +29,10 @@ const AvartaDl = styled.dl`
     height: 30px;
     margin-right: 10px;
 
-    img {
+    div {
       width: 100%;
-      height: auto;
+      height: 100%;
+      background: url(${(props) => props.src}) no-repeat center/cover;
     }
   }
 `;

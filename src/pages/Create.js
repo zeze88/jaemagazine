@@ -8,6 +8,7 @@ import { MagazineImg } from "../element";
 import Upload from "../shared/Upload";
 import { actionCreators as postActions } from "../redux/modules/post";
 import { actionCreators as imageActions } from "../redux/modules/images";
+import Button from "../element/Button";
 
 const Create = (props) => {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ const Create = (props) => {
   const is_login = useSelector((state) => state.user.is_login);
   const previewImg = useSelector((state) => state.images.preview);
   const post_list = useSelector((state) => state.post.list);
+  const is_uploading = useSelector((state) => state.images.uploading);
+  console.log(is_uploading);
   const post_id = params.id;
   const is_edit = post_id ? true : false;
 
@@ -55,25 +58,32 @@ const Create = (props) => {
   };
 
   const addPost = () => {
-    dispatch(postActions.addPostFB(contents));
+    if (!contents.post_title) {
+      alert("제목을 입력해주시요");
+    } else if (!contents.post_content) {
+      alert("내용을 입력해주시요");
+    } else if (!previewImg) {
+      alert("이미지를 업로드해주세요");
+    } else {
+      dispatch(postActions.addPostFB(contents));
+    }
   };
   const editPost = () => {
     dispatch(postActions.editPostFB(post_id, { ...contents }));
   };
 
-  console.log(contents);
-
   if (!is_login) {
     return (
-      <div>
-        <h2 className="h-[200px] align-center">로그인 후만 가능합니다.</h2>
-        <button
-          className="w-full py-3 bg-slate-300 hover:bg-rose-300 rounded text-white"
+      <div className="w-[400px] m-auto my-[100px]">
+        <h2 className="py-[100px] leading-loose text-center">
+          로그인 후만 가능합니다.
+        </h2>
+        <Button
+          title="메인으로 돌아기기"
           onClick={() => {
             history.replace("/");
-          }}>
-          로그인하러가기
-        </button>
+          }}
+        />
       </div>
     );
   }
@@ -85,6 +95,8 @@ const Create = (props) => {
         type="text"
         onChange={onChange}
         value={contents.post_title}
+        placeholder="제목을 입력해주세요"
+        className="w-full p-4 border-b border-rose-600 focus:outline-none mb-8"
       />
       <Upload />
       <MagazineImg
@@ -100,21 +112,21 @@ const Create = (props) => {
         value={contents.post_content}
       />
       {is_edit ? (
-        <button
+        <Button
+          title="수정하기"
+          is_uploading={is_uploading}
           onClick={() => {
             editPost();
           }}
-          className="w-full py-3 bg-slate-300 hover:bg-rose-300 rounded text-white">
-          수정하기
-        </button>
+        />
       ) : (
-        <button
+        <Button
+          title="작성하기"
+          is_uploading={is_uploading}
           onClick={() => {
             addPost();
           }}
-          className="w-full py-3 bg-slate-300 hover:bg-rose-300 rounded text-white">
-          작성하기
-        </button>
+        />
       )}
     </div>
   );

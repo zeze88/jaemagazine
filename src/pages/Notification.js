@@ -1,22 +1,34 @@
 import React from "react";
-
+import { useSelector } from "react-redux";
 import NotiCard from "../components/NotiCard";
+import { realtime } from "../shared/firebase";
 
 const Notification = () => {
-  let noti = [
-    {
-      user_name: "aaaa",
-      post_id: "post1",
-      img_src:
-        "https://firebasestorage.googleapis.com/v0/b/jaemagazine-45854.appspot.com/o/image%2FJULhtsuBmabuNrbQ5Vv6ZLivSUB3_1644288039525?alt=media&token=b1e41d63-a6b2-4b6f-a839-4f145ede2ff1",
-    },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-    { user_name: "aaaa", post_id: "post1", img_src: "" },
-  ];
+  const user = useSelector((state) => state.user.user);
+  const [noti, setNoti] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const notiDB = realtime.ref(`noti/${user.uid}/list`);
+    const _noti = notiDB.orderByChild("insert_dt");
+    _noti.once("value", (snapshot) => {
+      if (snapshot.exists()) {
+        let _data = snapshot.val();
+        console.log(_data);
+        //역순정렬
+        let _noti_list = Object.keys(_data)
+          .reverse()
+          .map((v) => {
+            return _data[v];
+          });
+
+        setNoti(_noti_list);
+      }
+    });
+  }, [user]);
   return (
     <div className="bg-emerald-400">
       {noti.map((v, idx) => {

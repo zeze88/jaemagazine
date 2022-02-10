@@ -1,70 +1,36 @@
 import React from "react";
 import { useParams } from "react-router";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { history } from "../redux/configuserStore";
-import { firestore } from "../shared/firebase";
 
 import Comment from "../components/Comment";
 import CommentList from "../components/CommentList";
 import DetailPost from "../components/DetailPost";
 
+import { actionCreators as postActions } from "../redux/modules/post";
 const Detail = (props) => {
+  const dispatch = useDispatch();
   const id = useParams().id;
   const user_info = useSelector((state) => state.user.user);
   const post_list = useSelector((state) => state.post.list);
   const post_idx = post_list.findIndex((v) => v.id === id);
-  const post_data = post_list[post_idx];
-  const [post, setPost] = React.useState(post_data ? post_data : null);
-
+  const post = post_list[post_idx];
   React.useEffect(() => {
     if (post) {
       return;
     }
-    const postDB = firestore.collection("post");
-    postDB
-      .doc(id)
-      .get()
-      .then((doc) => {
-        console.log(doc);
-        console.log(doc.data());
-        const _post = doc.data();
-        console.log(_post);
-        let posts = Object.keys(_post).reduce(
-          (acc, cur) => {
-            if (cur.indexOf("user_") !== -1) {
-              // console.log([cur], _post[cur]);
-              return {
-                ...acc,
-                user_info: { ...acc.user_info, [cur]: _post[cur] },
-              };
-            } else if (cur.indexOf("_cnt") !== -1) {
-              return {
-                ...acc,
-                info: { ...acc.info, [cur]: _post[cur] },
-              };
-            } else if (cur.indexOf("post_") !== -1) {
-              return {
-                ...acc,
-                magazine: { ...acc.magazine, [cur]: _post[cur] },
-              };
-            }
-            return { ...acc, [cur]: _post[cur] };
-          },
-          { id: doc.id, user_info: {}, info: {}, magazine: {} }
-        );
-        setPost(posts);
-      });
+    dispatch(postActions.getOnePostFB(id));
   }, []);
   return (
     <div className="container px-10 m-auto">
       {post && (
         <DetailPost
           {...post}
-          is_me={post.user_info.user_id === user_info.uid}
+          is_me={post.user_info.user_id === user_info?.uid}
         />
       )}
-      <Comment />
-      <CommentList />
+      <Comment post_id={id} />
+      <CommentList post_id={id} />
       <button
         className="fixed bottom-10 right-16 w-16 h-16 border border-dashed hover:border-solid border-rose-600 rounded-full"
         onClick={() => {

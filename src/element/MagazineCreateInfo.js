@@ -1,7 +1,8 @@
 import React from "react";
 import Avarta from "../Avatar";
 
-const MagazineCreateInfo = ({ user_info, insert_dt }) => {
+const MagazineCreateInfo = (props) => {
+  const { user_info, insert_dt } = props;
   return (
     <ul className="flex items-center justify-between py-3">
       <li>

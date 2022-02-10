@@ -14,6 +14,7 @@ const TextArea = (props) => {
       id={id}
       onChange={onChange}
       placeholder={placeholder}
+      className="border mb-6"
       value={props.value}></TextStyle>
   );
 };

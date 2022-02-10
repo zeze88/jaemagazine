@@ -1,10 +1,11 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { setCookie, getCookie, removeCookie } from "../shared/cookie";
+import { setCookie } from "../shared/cookie";
 import { actionCreators as userActions } from "../redux/modules/user";
 
 import styled from "styled-components";
 import emailCheck from "../shared/common";
+import { Button } from "../element";
 
 const Login = (props) => {
   const [cookies, setCookies] = React.useState({});
@@ -12,6 +13,7 @@ const Login = (props) => {
   const onChange = (e) => {
     const targetId = e.target.id;
     const targetValue = e.target.value;
+    console.log(e.target);
     setCookies({ ...cookies, [targetId]: targetValue });
   };
 
@@ -50,13 +52,12 @@ const Login = (props) => {
           />
         </label>
       </form>
-      <button
+      <Button
+        title="로그인"
         onClick={() => {
           onLogin();
         }}
-        className="w-full py-3 bg-slate-300 hover:bg-rose-300 rounded text-white">
-        로그인
-      </button>
+      />
     </Privacy>
   );
 };

@@ -1,21 +1,27 @@
 import React from "react";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { actionCreators as postActions } from "../redux/modules/post";
 import { ReactComponent as CommentSvg } from "../svg/comment.svg";
 import { ReactComponent as LikeItSvg } from "../svg/like_it_defualt.svg";
 import { ReactComponent as LikeItSvgActive } from "../svg/like_it_active.svg";
 
-const MagazineInfo = ({ info }) => {
-  let { comment_cnt, like_it_cnt } = info;
-  const [isLike, setIsLike] = React.useState(false);
-  const [countLike, setCountLike] = React.useState(like_it_cnt);
-
+const MagazineInfo = (props) => {
+  let { like_user, comment_cnt, like_it_cnt, post_id } = props;
+  const dispatch = useDispatch();
+  const [isLike, setIsLike] = React.useState(like_user);
   const click_like = () => {
-    if (!isLike) {
-      setCountLike(countLike + 1);
-    } else {
-      setCountLike(countLike - 1);
-    }
+    dispatch(postActions.likeItFB(post_id, isLike));
+    setIsLike(!isLike);
   };
+
+  React.useEffect(() => {
+    if (!like_user) {
+      return;
+    }
+    setIsLike(like_user);
+  }, [like_user]);
+
   return (
     <InfoWrap className="flex  py-4">
       <dl>
@@ -28,11 +34,10 @@ const MagazineInfo = ({ info }) => {
         <dt
           onClick={() => {
             click_like();
-            setIsLike(!isLike);
           }}>
           {!isLike ? <LikeItSvg /> : <LikeItSvgActive />}
         </dt>
-        <dd>{countLike}</dd>
+        <dd>{like_it_cnt}</dd>
       </dl>
     </InfoWrap>
   );

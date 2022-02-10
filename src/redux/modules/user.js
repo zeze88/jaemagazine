@@ -1,7 +1,6 @@
 import { createAction, handleActions } from "redux-actions";
-import produce, { Produce } from "immer";
-import { getCookie, setCookie, removeCookie } from "../../shared/cookie";
-import { USERWHITESPACABLE_TYPES } from "@babel/types";
+import produce from "immer";
+import { setCookie, removeCookie } from "../../shared/cookie";
 import { auth } from "../../shared/firebase";
 import firebase from "firebase/app";
 
@@ -21,13 +20,7 @@ const initialState = {
   is_login: false,
 };
 
-// const user_initial = {
-//   user_name: "summer",
-//   user_is: "",
-// };
-
 //middlewear
-
 const signUpFB = (id, pwd, user_name) => {
   return function (dispatch, getState, { history }) {
     //firebase에 id, pwd는 저장이 되니까
@@ -41,8 +34,8 @@ const signUpFB = (id, pwd, user_name) => {
           .then(() => {
             dispatch(
               setUser({
-                user_name: user_name,
                 id: id,
+                user_name: user_name,
                 user_profile: "",
                 uid: user.user.uid,
               })
@@ -76,12 +69,14 @@ const loginFB = (id, pwd) => {
               uid: user.user.uid,
             })
           );
+          alert(`${user.user.displayName}님 반갑습니다:)`);
           history.push("/");
         })
         .catch((error) => {
           var errorCode = error.code;
           var errorMessage = error.message;
           console.log(errorCode, errorMessage);
+          alert("아이디와패스워드가 맞지 않습니다.");
         });
     });
   };

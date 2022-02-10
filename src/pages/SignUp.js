@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
 import emailCheck from "../shared/common";
 import { Privacy } from "./Login";
+import { Button } from "../element";
+
 const SignUp = (props) => {
   const dispatch = useDispatch();
   const [fillForm, setFillForm] = React.useState({});
@@ -74,13 +76,12 @@ const SignUp = (props) => {
           />
         </label>
       </form>
-      <button
+      <Button
+        title="가입하기"
         onClick={() => {
           signup();
         }}
-        className="w-full py-3 bg-slate-300 hover:bg-rose-300 rounded text-white">
-        가입하기
-      </button>
+      />
     </Privacy>
   );
 };

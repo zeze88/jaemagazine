@@ -1,5 +1,6 @@
 import { createAction, handleActions } from "redux-actions";
 import produce from "immer";
+import firebase from "firebase/app";
 import { firestore, storage } from "../../shared/firebase";
 import moment from "moment";
 import { actionCreators as imageActions } from "./images";
@@ -7,6 +8,8 @@ import { actionCreators as imageActions } from "./images";
 const SET_POST = "SET_POST";
 const ADD_POST = "ADD_POST";
 const EDIT_POST = "EDIT_POST";
+const DEL_POST = "DEL_POST";
+const LIKE_IT = "LIKE_IT";
 
 const setPost = createAction(SET_POST, (post_list) => ({ post_list }));
 const addPost = createAction(ADD_POST, (post) => ({ post }));
@@ -14,11 +17,16 @@ const editPost = createAction(EDIT_POST, (post_id, post) => ({
   post_id,
   post,
 }));
-
+const delPost = createAction(EDIT_POST, (post_id, id) => ({
+  post_id,
+  id,
+}));
+const likeIt = createAction(LIKE_IT, (post_id) => ({ post_id }));
 const initialState = {
   list: [],
 };
 
+//기본 값
 const initialPost = {
   user_info: {
     user_id: "",
@@ -34,13 +42,97 @@ const initialPost = {
   },
   img_src:
     "https://static01.nyt.com/images/2022/02/06/magazine/06mag-meateater-08/06mag-meateater-08-articleLarge.jpg?quality=75&auto=webp&disable=upscale",
-  info: {
-    comment_cnt: 0,
-    like_it_cnt: 4,
-  },
   insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  comment_cnt: 0,
+  like_it_cnt: 0,
 };
 
+//좋아요
+const likeItFB = (post_id) => {
+  return function (dispatch, getState, { history }) {
+    // const likeUserDB = firestore.collection("like_user");
+    const postDB = firestore.collection("post");
+    const user_info = getState().user.user;
+    const post = getState().post.list.find((l) => l.id === post_id);
+
+    let like_user = {
+      uid: user_info.uid,
+      user_name: user_info.user_name,
+      user_profile: user_info.user_profile,
+    };
+
+    if (!post[user_info.uid]) {
+      console.log("true", post[user_info.uid]);
+
+      const increment = firebase.firestore.FieldValue.increment(1);
+
+      postDB
+        .doc(post_id)
+        .update({ like_it_cnt: increment, [user_info.uid]: true })
+        .then((doc) => {
+          if (post) {
+            dispatch(
+              editPost(post_id, {
+                like_it_cnt: parseInt(post.like_it_cnt + 1),
+                [user_info.uid]: true,
+              })
+            );
+          }
+        });
+    } else {
+      const increment = firebase.firestore.FieldValue.increment(-1);
+      postDB
+        .doc(post_id)
+        .update({ like_it_cnt: increment, [user_info.uid]: false })
+        .then(() => {
+          if (post) {
+            dispatch(
+              editPost(post_id, {
+                like_it_cnt: parseInt(post.like_it_cnt - 1),
+                [user_info.uid]: false,
+              })
+            );
+          }
+        });
+    }
+  };
+};
+
+//포스트 가져오기
+const getPostFB = () => {
+  return function (dispatch, getState, { history }) {
+    const postDB = firestore.collection("post");
+    postDB.get().then((docs) => {
+      let post_list = [];
+      docs.forEach((doc) => {
+        // post_list.push({ id: doc.id, ...doc.data() });
+        let _post = doc.data();
+        let post = Object.keys(_post).reduce(
+          (acc, cur) => {
+            if (cur.indexOf("user_") !== -1) {
+              return {
+                ...acc,
+                user_info: { ...acc.user_info, [cur]: _post[cur] },
+              };
+            } else if (cur.indexOf("post_") !== -1) {
+              return {
+                ...acc,
+                magazine: { ...acc.magazine, [cur]: _post[cur] },
+              };
+            }
+            return { ...acc, [cur]: _post[cur] };
+          },
+          { id: doc.id, user_info: {}, magazine: {} }
+        );
+        post_list.push(post);
+        // console.log(post);
+      });
+      dispatch(setPost(post_list));
+    });
+  };
+};
+
+//포스트 추가
 const addPostFB = (magazine, info) => {
   return function (dispatch, getState, { history }) {
     const postFB = firestore.collection("post");
@@ -57,10 +149,6 @@ const addPostFB = (magazine, info) => {
         post_content: magazine.post_content,
         post_title: magazine.post_title,
       },
-      // info: {
-      //   comment_cnt: info.comment_cnt,
-      //   like_it_cnt: info.like_it_cnt,
-      // },
       insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
     };
 
@@ -81,7 +169,6 @@ const addPostFB = (magazine, info) => {
             .add({ ...user_info, ..._post, img_src: url })
             .then((doc) => {
               let post = { user_info, ..._post, id: doc.id, img_src: url };
-              console.log(post);
               dispatch(addPost(post));
               history.replace("/");
               dispatch(imageActions.setPreview(null));
@@ -98,45 +185,7 @@ const addPostFB = (magazine, info) => {
   };
 };
 
-const getPostFB = () => {
-  return function (dispatch, getState, { history }) {
-    const postDB = firestore.collection("post");
-    postDB.get().then((docs) => {
-      let post_list = [];
-      docs.forEach((doc) => {
-        // post_list.push({ id: doc.id, ...doc.data() });
-        let _post = doc.data();
-        let post = Object.keys(_post).reduce(
-          (acc, cur) => {
-            if (cur.indexOf("user_") !== -1) {
-              // console.log([cur], _post[cur]);
-              return {
-                ...acc,
-                user_info: { ...acc.user_info, [cur]: _post[cur] },
-              };
-            } else if (cur.indexOf("_cnt") !== -1) {
-              return {
-                ...acc,
-                info: { ...acc.info, [cur]: _post[cur] },
-              };
-            } else if (cur.indexOf("post_") !== -1) {
-              return {
-                ...acc,
-                magazine: { ...acc.magazine, [cur]: _post[cur] },
-              };
-            }
-            return { ...acc, [cur]: _post[cur] };
-          },
-          { id: doc.id, user_info: {}, info: {}, magazine: {} }
-        );
-        post_list.push(post);
-        // console.log(post);
-      });
-      dispatch(setPost(post_list));
-    });
-  };
-};
-
+//포스트 수정
 const editPostFB = (post_id = null, post = {}) => {
   return function (dispatch, getState, { history }) {
     const user_id = getState().user.user.uid;
@@ -186,12 +235,81 @@ const editPostFB = (post_id = null, post = {}) => {
   };
 };
 
+//포스트 하나만 가져오기
+const getOnePostFB = (id) => {
+  return function (dispatch, getState, { history }) {
+    const postDB = firestore.collection("post");
+    postDB
+      .doc(id)
+      .get()
+      .then((doc) => {
+        // console.log(doc);
+        // console.log(doc.data());
+        const _post = doc.data();
+        // console.log(_post);
+        let post = Object.keys(_post).reduce(
+          (acc, cur) => {
+            if (cur.indexOf("user_") !== -1) {
+              // console.log([cur], _post[cur]);
+              return {
+                ...acc,
+                user_info: { ...acc.user_info, [cur]: _post[cur] },
+              };
+            } else if (cur.indexOf("post_") !== -1) {
+              return {
+                ...acc,
+                magazine: { ...acc.magazine, [cur]: _post[cur] },
+              };
+            }
+            return { ...acc, [cur]: _post[cur] };
+          },
+          { id: doc.id, user_info: {}, magazine: {} }
+        );
+        dispatch(setPost([post]));
+      });
+  };
+};
+
+// 포스트 삭제
+const delPostFB = (post_id) => {
+  return function (dispatch, getState, { history }) {
+    const postDB = firestore.collection("post");
+
+    //post 삭제
+    postDB
+      .doc(post_id)
+      .delete()
+      .then((doc) => {
+        // 해당 댓글 삭제
+        const commentDB = firestore.collection("comment");
+        const del_comment = getState().comment.list[post_id];
+        del_comment.map((v) => {
+          commentDB
+            .doc(v.id)
+            .delete()
+            .then((docs) => {});
+        });
+        history.replace("/");
+      });
+  };
+};
+
 export default handleActions(
   {
     [SET_POST]: (state, action) =>
       produce(state, (draft) => {
         draft.list = action.payload.post_list;
+
+        draft.list = draft.list.reduce((acc, cur) => {
+          if (acc.findIndex((a) => a.id === cur.id) === -1) {
+            return [...acc, cur];
+          } else {
+            acc[acc.findIndex((a) => a.id === cur.id)] = cur;
+            return acc;
+          }
+        }, []);
       }),
+
     [ADD_POST]: (state, action) =>
       produce(state, (draft) => {
         draft.list.unshift(action.payload.post);
@@ -201,6 +319,20 @@ export default handleActions(
         let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
         draft.list[idx] = { ...draft.list[idx], ...action.payload.post };
         console.log(draft.list[idx]);
+      }),
+
+    [DEL_POST]: (state, action) =>
+      produce(state, (draft) => {
+        const post_list = draft.list.filter((v, idx) => {
+          return v.id !== action.payload.post_id;
+        });
+
+        draft.list = { ...post_list };
+      }),
+    [LIKE_IT]: (state, action) =>
+      produce(state, (draft) => {
+        console.log(draft.list);
+        console.log(action.payload.post_id);
       }),
   },
   initialState
@@ -213,6 +345,11 @@ const actionCreators = {
   addPostFB,
   editPost,
   editPostFB,
+  getOnePostFB,
+  delPostFB,
+  delPost,
+  likeItFB,
+  likeIt,
 };
 
 export { actionCreators };
