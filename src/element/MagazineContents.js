@@ -5,8 +5,7 @@ const MagazineContents = ({ isTitle = true, magazine }) => {
   //props 홀수 글 왼 그림 오
   return (
     <>
-      {/* {isTitle && <h2 className="font-bold py-3">{magazine.post_title}</h2>} */}
-      <h2 className="font-bold py-3">{magazine.post_title}</h2>
+      {isTitle && <h2 className="font-bold py-3">{magazine.post_title}</h2>}
       <p>{magazine.post_content}</p>
     </>
   );

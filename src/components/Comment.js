@@ -5,7 +5,7 @@ import { actionCreators as commentActions } from "../redux/modules/comment";
 const Comment = (props) => {
   const { post_id } = props;
   const dispatch = useDispatch();
-  // cosnt comment_list = useSelector()
+  const user_info = useSelector((state) => state.user.user);
   const [comment_text, setCommentText] = React.useState();
 
   const onChange = (e) => {
@@ -13,6 +13,15 @@ const Comment = (props) => {
   };
 
   const write = () => {
+    if (!comment_text) {
+      return alert("댓글을입력해주세요!");
+    } else if (!user_info) {
+      alert("댓글은 로그인후 가능합니다.");
+      setCommentText("");
+
+      return;
+    }
+
     dispatch(commentActions.addCommentFB(post_id, comment_text));
     setCommentText("");
   };

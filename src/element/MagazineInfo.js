@@ -5,12 +5,17 @@ import { actionCreators as postActions } from "../redux/modules/post";
 import { ReactComponent as CommentSvg } from "../svg/comment.svg";
 import { ReactComponent as LikeItSvg } from "../svg/like_it_defualt.svg";
 import { ReactComponent as LikeItSvgActive } from "../svg/like_it_active.svg";
+import user from "../redux/modules/user";
 
 const MagazineInfo = (props) => {
   let { like_user, comment_cnt, like_it_cnt, post_id } = props;
   const dispatch = useDispatch();
+  const user_info = useSelector((state) => user.user);
   const [isLike, setIsLike] = React.useState(like_user);
   const click_like = () => {
+    if (!user_info) {
+      return alert("로그인후 사용하실수 있습니다.");
+    }
     dispatch(postActions.likeItFB(post_id, isLike));
     setIsLike(!isLike);
   };
