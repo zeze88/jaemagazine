@@ -7,6 +7,7 @@ const Upload = () => {
   const dispatch = useDispatch();
   const is_uploading = useSelector((state) => state.images.uploading);
   const fileInput = React.useRef();
+
   const selectFile = (e) => {
     const reader = new FileReader();
     const file = fileInput.current.files[0];
