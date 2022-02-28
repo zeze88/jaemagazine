@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { history } from "../redux/configuserStore";
 import { MagazineImg, MagazineContents, MagazineInfo } from "../element";
 
@@ -6,7 +7,7 @@ const MagazineCard = (props) => {
   const { id, idx, magazine, user_info, comment_cnt, like_it_cnt = 3 } = props;
 
   return (
-    <div className={`flex flex-row${idx % 2 === 0 ? "" : "-reverse"}`}>
+    <MainArticle className={`flex flex-row${idx % 2 === 0 ? "" : "-reverse"}`}>
       <div
         className="flex-1  cursor-pointer"
         onClick={() => {
@@ -31,7 +32,7 @@ const MagazineCard = (props) => {
           />
         </div>
       </div>
-    </div>
+    </MainArticle>
   );
 };
 
@@ -54,5 +55,5 @@ MagazineCard.defaultProps = {
     user_profile: "",
   },
 };
-
+const MainArticle = styled.div``;
 export default MagazineCard;

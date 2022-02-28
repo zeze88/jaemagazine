@@ -43,11 +43,9 @@ const Notification = () => {
 };
 const NotiDiv = styled.div`
   margin-top: -110px;
-  padding-top 70px;
+  padding-top: 70px;
   background: url(/img/magazine.jpg) no-repeat fixed center/cover;
   width: 100vw;
-  height: 100vh;
-  
-
+  height: 100%;
 `;
 export default Notification;

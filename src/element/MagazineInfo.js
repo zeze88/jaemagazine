@@ -12,7 +12,7 @@ const MagazineInfo = (props) => {
   const dispatch = useDispatch();
   const user_info = useSelector((state) => state.user.user);
   const [isLike, setIsLike] = React.useState(like_user);
-  console.log(user_info);
+
   const click_like = () => {
     if (!user_info) {
       return alert("로그인후 사용하실수 있습니다.");
