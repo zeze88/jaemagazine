@@ -47,5 +47,6 @@ const NotiDiv = styled.div`
   background: url(/img/magazine.jpg) no-repeat fixed center/cover;
   width: 100vw;
   height: 100%;
+  min-height: 100vh;
 `;
 export default Notification;
